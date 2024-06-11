@@ -54,15 +54,43 @@ function App() {
       console.error('Error:', error);
     }
   };
+ 
+  const createSubtask = async () => {
+    const payload = [
+      {
+        summary: 'Subtask 1',
+        description: 'Subtask Description 1',
+      },
+      {
+        summary: 'Subtask 2',
+        description: 'Subtask Description 2',
+      },
+    ]
+    try {
+      const response = await invoke('createSubtask', payload);
+      console.log('Response:', response);
+      if(response){
+        view.refresh();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      if (error.response) {
+        console.error('Response:', error.response);
+      }
+    }
+  };
+
+
   useEffect(async() => {
   getContext().then((data) => {
     context = data;
   });
     const fetchIssue = async () => invoke('fetchIssue');
     fetchIssue().then((data) => {
+      console.log('Data:', data);
       handleFetchSuccess(data);
-    }).catch(handleFetchError('Failed to fetch issue'));
 
+    }).catch(handleFetchError('Failed to fetch issue'));
     const fetchAssignees = async () => invoke('fetchAssignees');
     fetchAssignees().then((data) => {
       setAssignees(data.assignees);
@@ -75,7 +103,7 @@ function App() {
   return (
    <>
     <span>Issue Summary: {issue?.fields?.summary}</span>
-    <span>Issue description: {issue?.fields?.description?.content[0].content[0].text+' '+issue?.fields?.description?.content[0].content[1].text}</span>
+    {/* <span>Issue description: {issue?.fields?.description?.content[0].content[0].text+' '+issue?.fields?.description?.content[0].content[1].text}</span> */}
     <div>
       <Select
        className="single-select"
@@ -87,7 +115,7 @@ function App() {
       <br/>
       <p>{paragraph}</p>
       <br/>
-      <Button appearance="primary" onClick={generateDescription}>Generate Description</Button>
+      <Button appearance="primary" onClick={()=> createSubtask('Subtask 12291', 'Subtask Description 1211')}>Generate Description</Button>
     </div>
     <div>
     </div>

@@ -1,14 +1,12 @@
 import Resolver from '@forge/resolver';
 import api, { route } from '@forge/api';
+import * as utils from './utils/utils';
 const resolver = new Resolver();
 
 resolver.define('fetchIssue', async (req) => {
   const key = req.context.extension.issue.key;
-
   const res = await api.asUser().requestJira(route`/rest/api/3/issue/${key}`);
-
   const data = await res.json();
-
   return data;
 });
 
@@ -32,4 +30,29 @@ resolver.define('postIssue', async (request) => {
   return response;
 });
 
+resolver.define('createSubtask', async (req) => {
+  const parentKey = req.context.extension.issue.key;
+  const body = req.payload // Parse the body
+  const toAdd = [];
+  for(let i=0; i<body.length; i++){
+    const subtaskSummary = body[i].summary;
+    const subtaskDescription = body[i].description;
+    toAdd.push(utils.createPayload(parentKey, subtaskSummary, subtaskDescription));
+  }
+  const res = await api.asUser().requestJira(route`/rest/api/3/issue/bulk`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      issueUpdates: toAdd,
+    }),
+  });
+
+  console.log('Response:', res);
+  const data = await res.json();
+  return data;
+});
+
 export const handler = resolver.getDefinitions();
+// "Operation value must be an Atlassian Document (see the Atlassian Document Format)"
