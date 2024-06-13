@@ -7,7 +7,7 @@ function App() {
   const [issue, setIssue] = useState(null);
   const [assignees, setAssignees] = useState([]);
   const [paragraph, setParagraph] = useState("");
-  let context;
+  const [context, setContext] = useState({});
   const handleFetchSuccess = (data) => {
     setIssue(data);
     if (Object.keys(data).length === 0) {
@@ -84,9 +84,8 @@ function App() {
   };
 
   useEffect(async () => {
-    getContext().then((data) => {
-      context = data;
-    });
+    const context = await getContext();
+    setContext(context);
     const fetchIssue = async () => invoke("fetchIssue");
     fetchIssue()
       .then((data) => {
@@ -107,6 +106,7 @@ function App() {
   }
   return (
     <>
+    {context?.extension?.issue?.key}
       <span>Issue Summary: {issue?.fields?.summary}</span>
       {/* <span>Issue description: {issue?.fields?.description?.content[0].content[0].text+' '+issue?.fields?.description?.content[0].content[1].text}</span> */}
       <div>
